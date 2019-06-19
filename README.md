@@ -316,3 +316,45 @@ GROUP BY
 	d.user_id,d.merchant_id
 
 12
+create table user_merchant_feature3
+
+SELECT
+	a.user_id,
+	a.merchant_id,
+	DATEDIFF((
+		SELECT
+			max(
+				date(
+				concat( '2019', b.time_stamp ))) 
+		FROM
+			user_log_format1 AS b 
+		WHERE
+			a.user_id = b.user_id 
+			AND a.merchant_id = b.merchant_id 
+			),(
+		SELECT
+			min(
+				date(
+				concat( '2019', b.time_stamp ))) 
+		FROM
+			user_log_format1 AS b 
+		WHERE
+			a.user_id = b.user_id 
+			AND a.merchant_id = b.merchant_id 
+		)) AS first_last_time_diff,
+	count(
+		DISTINCT (
+		LEFT ( time_stamp, 2 ))) AS month_user_merchant,
+	count(
+	DISTINCT ( right(time_stamp,2) )) AS day_user_merchant,
+	count(
+	DISTINCT ( item_id )) AS user_merchant_item_num,
+	count(
+	DISTINCT ( cat_id )) AS user_merchant_cat_num,
+	count(
+	DISTINCT ( brand_id )) AS user_merchant_brand_num
+FROM
+	user_log_format1 AS a 
+GROUP BY
+	a.user_id,
+	a.merchant_id
