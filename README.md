@@ -314,3 +314,5 @@ FROM
 	user_log_format1 AS d  
 GROUP BY
 	d.user_id,d.merchant_id
+
+12
