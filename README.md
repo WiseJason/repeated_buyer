@@ -358,3 +358,35 @@ FROM
 GROUP BY
 	a.user_id,
 	a.merchant_id
+13
+SELECT
+	user_id,
+	(total_num /(
+	SELECT
+		( sum( total_num )+ 10 ) 
+	FROM
+			user_feature1 )) *100 as user_total_proportion,
+		(purchase_num /(
+	SELECT
+		( sum( purchase_num )+ 10 ) 
+	FROM
+			user_feature1)) *100 as user_purchase_proportion
+FROM
+	user_feature1
+	
+14
+
+SELECT
+	merchant_id,
+	(merchant_total_num /(
+	SELECT
+		( sum( merchant_total_num )+ 10 ) 
+	FROM
+			merchant_feature1 )) *100 as merchant_total_proportion,
+		(purchase_merchant_num /(
+	SELECT
+		( sum( purchase_merchant_num )+ 10 ) 
+	FROM
+			merchant_feature1)) *100 as merchant_purchase_proportion
+FROM
+	merchant_feature1
