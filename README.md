@@ -255,3 +255,62 @@ FROM
 	user_log_format1 where action_type=2
 GROUP BY
 	merchant_id
+10
+
+create table user_merchant_feature1
+SELECT user_id,merchant_id,count(user_id) as user_merchant_num,
+count( CASE action_type WHEN 0 THEN 1 ELSE NULL END ) AS user_merchant__click_num,
+	count( CASE action_type WHEN 1 THEN 1 ELSE NULL END ) AS user_merchant_add_carts_num,
+	count( CASE action_type WHEN 2 THEN 1 ELSE NULL END ) AS user_merchant_purchase_num,
+	count( CASE action_type WHEN 3 THEN 1 ELSE NULL END ) AS user_merchant_collection_num
+FROM
+	temp
+GROUP BY
+	user_id,
+	merchant_id
+11
+create table user_merchant_feature2
+SELECT
+	d.user_id,
+	d.merchant_id,(
+	SELECT
+		count( e.merchant_id ) / count( DISTINCT ( LEFT ( e.time_stamp, 2 ) ) ) 
+	FROM
+		user_log_format1 AS e 
+	WHERE
+		e.merchant_id = d.merchant_id  and e.user_id=d.user_id 
+	) AS month_user_merchant_num ,(
+	SELECT
+		count( e.merchant_id ) /(case when count( DISTINCT ( LEFT ( e.time_stamp, 2 ) ) ) =0 then NULL else count( DISTINCT ( LEFT ( e.time_stamp, 2 ) ))    end )
+	FROM
+		user_log_format1 AS e 
+	WHERE
+		e.merchant_id = d.merchant_id  and e.user_id=d.user_id  and e.action_type=0
+	) AS month_user_merchant_click_num,(
+	SELECT
+		count( e.merchant_id ) / (case when count( DISTINCT ( LEFT ( e.time_stamp, 2 ) ) ) =0 then NULL else count( DISTINCT ( LEFT ( e.time_stamp, 2 ) ))    end )
+	FROM
+		user_log_format1 AS e 
+	WHERE
+		e.merchant_id = d.merchant_id  and e.user_id=d.user_id and e.action_type=1
+	) AS month_user_merchant_add_cart_num ,
+	(
+	SELECT
+		count( e.merchant_id ) / (case when count( DISTINCT ( LEFT ( e.time_stamp, 2 ) ) ) =0 then NULL else count( DISTINCT ( LEFT ( e.time_stamp, 2 ) ))    end )
+	FROM
+		user_log_format1 AS e 
+	WHERE
+		e.merchant_id = d.merchant_id  and e.user_id=d.user_id and e.action_type=2
+	) AS month_user_merchant_purchase_num ,
+	(
+	SELECT
+		count( e.merchant_id ) / (case when count( DISTINCT ( LEFT ( e.time_stamp, 2 ) ) ) =0 then NULL else count( DISTINCT ( LEFT ( e.time_stamp, 2 ) ))    end )
+	FROM
+		user_log_format1 AS e 
+	WHERE
+		e.merchant_id = d.merchant_id  and e.user_id=d.user_id and e.action_type=3 
+	) AS month_user_merchant_add_favourite_num 
+FROM
+	user_log_format1 AS d  
+GROUP BY
+	d.user_id,d.merchant_id
