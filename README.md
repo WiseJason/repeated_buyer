@@ -390,3 +390,32 @@ SELECT
 			merchant_feature1)) *100 as merchant_purchase_proportion
 FROM
 	merchant_feature1
+15
+
+create table user_merchant_proportion_feature1
+SELECT
+	user_id,
+	merchant_id,
+	10000 *(
+		user_merchant_num /(
+			( SELECT sum( user_merchant_num ) FROM user_merchant_feature1 )+ 10 
+		) 
+	) AS user_merchant_total_proporation,
+	10000 *(
+		user_merchant_purchase_num /(
+			( SELECT sum( user_merchant_purchase_num) FROM user_merchant_feature1 )+ 10 
+		) 
+	) AS user_merchant_purchase_proporation
+	
+FROM
+	user_merchant_feature1
+	16
+	
+create table user_merchant_proportion_feature2
+SELECT
+	a.user_id,a.merchant_id,100*(a.user_merchant_num/(b.merchant_total_num+10)) as user_total_merchant_proportion,
+	100*(a.user_merchant_purchase_num/(b.purchase_merchant_num+10)) as user_purchase_merchant_proportion
+FROM
+	user_merchant_feature1 as a 
+	LEFT JOIN merchant_feature1 as b 
+	on a.merchant_id=b.merchant_id 
