@@ -419,3 +419,78 @@ FROM
 	user_merchant_feature1 as a 
 	LEFT JOIN merchant_feature1 as b 
 	on a.merchant_id=b.merchant_id 
+	
+	17
+	CREATE TABLE user_repurchase_rate SELECT
+a.merchant_id,
+CASE when 
+		count(
+		DISTINCT ( a.user_id )) 
+		= 0 THEN NULL else
+		( SELECT count( DISTINCT ( b.user_id )) FROM user_log_format1 AS b WHERE b.buy_back = 1 AND a.merchant_Id = b.merchant_id ) / count(
+		DISTINCT ( a.user_id )) * 100 
+	END AS user_repurchase_rate 
+FROM
+	user_log_format1 AS a 
+GROUP BY
+	a.merchant_id
+	
+	18
+	
+	create table repurchase_count_rate
+SELECT
+	a.merchant_id,
+	CASE
+			
+			WHEN count( a.user_id )= 0 THEN
+			NULL ELSE (
+			SELECT
+				(
+				count( b.user_id )- count( DISTINCT ( b.user_Id ) )) 
+			FROM
+				user_log_format1 AS b 
+			WHERE
+				b.merchant_id = a.merchant_id 
+				AND b.buy_back = 1 
+			) / count( a.user_id ) 
+	END AS repurchase_count_rate 
+FROM
+	user_log_format1 AS a 
+GROUP BY
+	a.merchant_id
+	
+	19
+	CREATE TABLE repurchase_item_rate SELECT
+a.merchant_Id,((
+		SELECT
+			count(
+			DISTINCT ( b.item_id )) 
+		FROM
+			user_log_format1 AS b 
+		WHERE
+			b.merchant_id = a.merchant_id 
+			AND b.buy_back = 1 
+			) / count( a.merchant_id ) 
+	)* 100 AS repurchase_item_rate 
+FROM
+	user_log_format1 AS a 
+GROUP BY
+	a.merchant_id
+	
+	20
+	CREATE TABLE repurchase_item_purchase_rate SELECT
+a.merchant_Id,((
+		SELECT
+			count(
+			DISTINCT ( b.item_id )) 
+		FROM
+			user_log_format1 AS b 
+		WHERE
+			b.merchant_id = a.merchant_id 
+			AND b.buy_back = 1 
+			) / count( a.merchant_id ) 
+	)* 100 AS repurchase_item_purchase_rate 
+FROM
+	user_log_format1 AS a where a.action_type=2
+GROUP BY
+	a.merchant_id 
