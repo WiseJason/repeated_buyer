@@ -494,3 +494,33 @@ FROM
 	user_log_format1 AS a where a.action_type=2
 GROUP BY
 	a.merchant_id 
+
+21
+
+CREATE table user_merchant_repurchase_rate
+SELECT
+	a.user_id,  case when count(distinct(a.merchant_id))=0 then NULL else
+	((select count(distinct(b.merchant_id)) from user_log_format1 as b where a.user_id=b.user_id
+	and b.buy_back=1) /count(distinct(a.merchant_id)))*100 end as user_merchant_repurchase_rate
+	
+FROM
+	user_log_format1  as a
+	
+	where a.action_type=2
+GROUP BY
+	a.user_id
+
+22
+
+CREATE table user_repurchase_rate
+SELECT
+	a.user_id,  case when count(a.user_id)=0 then NULL else
+	((select count(b.user_id) from user_log_format1  as b where a.user_id=b.user_id and b.action_type=2
+	and b.buy_back=1) /count(a.user_id))*100 end as user_repurchase_rate
+	
+FROM
+	user_log_format1  as a
+	
+	where a.action_type=2
+GROUP BY
+	a.user_id
